@@ -1,0 +1,19 @@
+name: struct2text_env
+channels:
+    - defaults
+    - conda-forge
+dependencies:
+    - python=3.8
+    - pip
+    - pip:
+        - numpy
+        - opendelta
+        - pandas
+        - sentencepiece>=0.1.96
+        - tqdm>=4.62.2
+        - transformers>=4.10.0,<=4.27.1
+        - datasets>=1.17.0
+        - evaluate
+        - nltk
+        - wandb
+    - pytorch::pytorch=1.12.1
