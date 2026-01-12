@@ -97,12 +97,12 @@ prefix_mid_dim = int(config['modules_config']['prefix_mid_dim'])
 
 tokenizer = T5Tokenizer.from_pretrained(args.model_name, mlm=False)
 #load xl in fp16, others in fp32
-model = T5ForConditionalGeneration.from_pretrained(args.model_name, torch_dtype=torch.bfloat16) if args.model_name== "google/flan-t5-xl" \
-        else T5ForConditionalGeneration.from_pretrained(args.model_name)
+model = T5ForConditionalGeneration.from_pretrained(args.model_name, torch_dtype=torch.bfloat16,device_map="auto") if args.model_name== "google/flan-t5-xl" \
+        else T5ForConditionalGeneration.from_pretrained(args.model_name,device_map="auto")
 
 # functions for Multi stage finetuning: load a finetuned model or a finetuned PEFT module
 def peft(module):
-    model = T5ForConditionalGeneration.from_pretrained(args.model_name)     
+    model = T5ForConditionalGeneration.from_pretrained(args.model_name,device_map="auto")     
     delta_model = AutoDeltaModel.from_finetuned(f"./exp/{args.source_finetuned_path}/{args.model_name.replace('/','')}/{module}", backbone_model=model, check_hash=False)
     return model, delta_model
 
@@ -110,8 +110,8 @@ def fulltune(module):
     finetuned_model_name = f"./exp/{args.source_finetuned_path}/{args.model_name.replace('/','')}/{module}"
 
     #load xl in fp16, others in fp32
-    model = T5ForConditionalGeneration.from_pretrained(finetuned_model_name, torch_dtype=torch.bfloat16) if args.model_name== "google/flan-t5-xl" \
-                                                        else T5ForConditionalGeneration.from_pretrained(finetuned_model_name) 
+    model = T5ForConditionalGeneration.from_pretrained(finetuned_model_name, torch_dtype=torch.bfloat16,device_map="auto") if args.model_name== "google/flan-t5-xl" \
+                                                        else T5ForConditionalGeneration.from_pretrained(finetuned_model_name,device_map="auto")
 
     return model
 ##########################################################
