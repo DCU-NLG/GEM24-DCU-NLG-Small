@@ -63,8 +63,8 @@ task_prompt = config['exp_config']['task_prompt']
                         #################
 task_do_train = config.getboolean('task_config', 'task_do_train')
 task_do_eval = config.getboolean('task_config', 'task_do_eval')
-task_per_device_train_batch_size = 8 if args.model_name== "google/flan-t5-xl" else int(config['task_config']['task_per_device_train_batch_size'])
-task_per_device_eval_batch_size = 4 if args.model_name == "google/flan-t5-xl" else int(config['task_config']['task_per_device_eval_batch_size'])
+task_per_device_train_batch_size = 8 if (args.model_name== "google/flan-t5-xl" or args.model_name== "google-t5/t5-3b") else int(config['task_config']['task_per_device_train_batch_size'])
+task_per_device_eval_batch_size = 4 if (args.model_name == "google/flan-t5-xl" or args.model_name== "google-t5/t5-3b") else int(config['task_config']['task_per_device_eval_batch_size'])
 task_learning_rate = float(config['task_config']['task_learning_rate'])
 task_max_steps = args.learning_steps           #int(config['task_config']['task_max_steps'])
 task_warmup_steps = int(0.1 * task_max_steps)  #int(config['task_config']['task_warmup_steps'])
@@ -97,7 +97,7 @@ prefix_mid_dim = int(config['modules_config']['prefix_mid_dim'])
 
 tokenizer = T5Tokenizer.from_pretrained(args.model_name, mlm=False)
 #load xl in fp16, others in fp32
-model = T5ForConditionalGeneration.from_pretrained(args.model_name, torch_dtype=torch.bfloat16,device_map="auto") if args.model_name== "google/flan-t5-xl" \
+model = T5ForConditionalGeneration.from_pretrained(args.model_name, torch_dtype=torch.bfloat16,device_map="auto") if (args.model_name== "google/flan-t5-xl" or args.model_name== "google-t5/t5-3b") \
         else T5ForConditionalGeneration.from_pretrained(args.model_name,device_map="auto")
 
 # functions for Multi stage finetuning: load a finetuned model or a finetuned PEFT module
@@ -110,7 +110,7 @@ def fulltune(module):
     finetuned_model_name = f"./exp/{args.source_finetuned_path}/{args.model_name.replace('/','')}/{module}"
 
     #load xl in fp16, others in fp32
-    model = T5ForConditionalGeneration.from_pretrained(finetuned_model_name, torch_dtype=torch.bfloat16,device_map="auto") if args.model_name== "google/flan-t5-xl" \
+    model = T5ForConditionalGeneration.from_pretrained(finetuned_model_name, torch_dtype=torch.bfloat16,device_map="auto") if (args.model_name== "google/flan-t5-xl" or args.model_name== "google-t5/t5-3b") \
                                                         else T5ForConditionalGeneration.from_pretrained(finetuned_model_name,device_map="auto")
 
     return model
